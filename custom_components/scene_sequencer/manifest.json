@@ -1,0 +1,11 @@
+{
+  "domain": "scene_sequencer",
+  "name": "Scene Sequencer",
+  "version": "1.0.0",
+  "integration_type": "service",
+  "documentation": "https://github.com/0x3333/scene_sequencer/wiki",
+  "issue_tracker": "https://github.com/0x3333/scene_sequencer/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["0x3333"]
+}

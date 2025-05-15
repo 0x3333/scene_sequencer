@@ -1,0 +1,19 @@
+cycle:
+  description: "Cycles through a series of scenes sequentially, advancing with each activation. Includes an optional timeout feature that automatically jumps to the final scene after a specified period of inactivity, perfect for implementing shutdown sequences or nighttime transitions."
+  fields:
+    scenes:
+      description: "Scenes list."
+      example: ["scene.full", "scene.desk", "scene.window", "scene.off"]
+      selector:
+        target:
+          entity:
+            domain: scene
+    go_to_last_delay:
+      description: "Timeout period (in seconds). If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene."
+      example: 5
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 60
+          step: 1
