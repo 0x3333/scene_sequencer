@@ -96,6 +96,20 @@ Each time you call the `cycle` service with the same scene list, it advances to 
 
 If configured with `go_to_last_timeout`, if called `cycle` after the specified timeout, it will jump to the last scene. This is usefull if you have wall switches, so after activating a scene, the next press will go to the "turn_off" scene that must be the last one. If it goes to the last one, it will check if the current lights state matches the last scene state, which will make it go to the first one, so the user doesn't need to press twice in the wall switches.
 
+### Diagram
+
+```mermaid
+graph TD
+    A[Press Wall Switch<br>Call scene_sequencer.cycle] --> B{Check Last Activation}
+    B -->|No timeout| C[Activate Next Scene<br>e.g., Bright -> Movie]
+    B -->|Timeout Elapsed| D{Current State Matches<br>Last Scene?<br>e.g., Lights Off?}
+    D -->|No| E[Activate Last Scene<br>e.g., Lights Off]
+    D -->|Yes| F[Got to First Scene<br>e.g., Bright]
+    C --> H[End]
+    E --> H
+    F --> H
+```
+
 ## Entities
 
 The component creates this entity:
