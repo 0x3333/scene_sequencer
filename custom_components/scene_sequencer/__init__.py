@@ -9,6 +9,11 @@ STORE_SENSOR = "binary_sensor.scene_sequencer_store"
 JSON_ATTR = "data"
 TIMEOUT_PROPERTY = "go_to_last_timeout"
 
+JSON_INDEX_PROPERTY = "idx"
+JSON_TIMESTAMP_PROPERTY = "ts"
+JSON_LAST_USED_PROPERTY = "last_used"
+CLEANUP_AGE_SECONDS = 10 * 24 * 60 * 60  # 10 days in seconds
+
 LOGGER = logging.getLogger(__name__)
 
 def generate_key(scenes: list[str]) -> str:
@@ -114,14 +119,24 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         except Exception:
             mapping = {}
 
+        # Clean up old entries (older than 'CLEANUP_AGE_SECONDS')
+        current_time = time.time()
+        keys_to_remove = [
+            k for k, v in mapping.items()
+            if (JSON_LAST_USED_PROPERTY in v and
+                (current_time - v[JSON_LAST_USED_PROPERTY ]) > CLEANUP_AGE_SECONDS)
+        ]
+        for k in keys_to_remove:
+            del mapping[k]
+
         # Get stored sequence state or initialize defaults
-        entry = mapping.get(key, {"idx": 0, "ts": 0})
-        idx = entry.get("idx", 0)  # Current position in sequence
-        last_ts = entry.get("ts", 0)  # Timestamp of last activation
+        entry = mapping.get(key, {JSON_INDEX_PROPERTY: 0, JSON_TIMESTAMP_PROPERTY: 0})
+        idx = entry.get(JSON_INDEX_PROPERTY, 0)  # Current position in sequence
+        last_ts = entry.get(JSON_TIMESTAMP_PROPERTY, 0)  # Timestamp of last activation
 
         # Calculate current timestamp and target scene
         new_idx = (idx + 1) % len(scenes)
-        now_ts = 0 if new_idx == 0 else time.time()
+        now_ts = time.time()
         target_scene = scenes[idx % len(scenes)]
 
         # Check if we should jump to the last scene due to timeout
@@ -130,12 +145,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             if await is_current_state_matching_scene(hass, scenes[-1]):
                 target_scene = scenes[0]
                 new_idx = 1
-                now_ts = time.time()
             else:
                 target_scene = scenes[-1]
                 new_idx = 0  # Reset to beginning for next activation
-                now_ts = 0   # Reset timestamp
 
+        # If last scene has been activated, force never trigger timeout
+        if new_idx == 0:
+            now_ts = 0
 
         # Activate the target scene
         await hass.services.async_call(
@@ -145,7 +161,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         )
 
         # Update stored state for this sequence
-        mapping[key] = {"idx": new_idx, "ts": now_ts}
+        mapping[key] = {
+            JSON_INDEX_PROPERTY: new_idx,
+            JSON_TIMESTAMP_PROPERTY: now_ts,
+            JSON_LAST_USED_PROPERTY: time.time()
+        }
 
         # Save state to persistent storage
         hass.states.async_set(STORE_SENSOR, True, {JSON_ATTR: json.dumps(mapping)})
