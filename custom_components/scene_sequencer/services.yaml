@@ -8,8 +8,8 @@ cycle:
         target:
           entity:
             domain: scene
-    go_to_last_delay:
-      description: "Timeout period (in seconds). If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene."
+    go_to_last_timeout:
+      description: "Timeout period in seconds. If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene."
       example: 5
       required: false
       selector:

@@ -9,7 +9,8 @@ A Home Assistant custom component that cycles through a series of scenes sequent
 
 - Cycle through scenes in a predetermined sequence
 - Track position for multiple independent sequences
-- Jump to a final scene if activated after a specified delay
+- Jump to a final scene if activated after a specified timeout
+- If after the timeout the current state of lights matches the last scene state, go to first automatically.
 
 ## Installation
 
@@ -42,7 +43,7 @@ Activates the next scene in a sequence.
 | Parameter | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
 | `scenes` | list | Yes | List of scene entity IDs to cycle through in order |
-| `go_to_last_delay` | integer | No | Timeout period (in seconds). If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. Allow going to a shutdown scene without need to sequence all scenes. When omitted, the sequence progresses normally through each scene. |
+| `go_to_last_timeout` | integer | No | Timeout period in seconds. If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene. |
 
 ## Usage Examples
 
@@ -65,10 +66,10 @@ automation:
             - scene.living_room_evening
 ```
 
-### Evening Wind-Down Sequence with Shutdown
+### Multiple scenes with Turn off
 
 ```yaml
-# Example: Cycle through relaxing scenes with auto-off after 2 hours
+# Example: Cycle through relaxing scenes with turn off after timeout
 automation:
   - alias: "Evening Wind-Down"
     trigger:
@@ -82,7 +83,7 @@ automation:
             - scene.dim_relax
             - scene.night_mood
             - scene.all_off
-          go_to_last_delay: 5  # seconds
+          go_to_last_timeout: 5  # seconds
 ```
 
 ## How It Works
@@ -92,6 +93,8 @@ The component maintains state for each unique scene sequence, tracking:
 - Timestamp of last usage
 
 Each time you call the `cycle` service with the same scene list, it advances to the next scene. The component uses a hashed identifier for each unique scene sequence to maintain independent tracking of multiple sequences.
+
+If configured with `go_to_last_timeout`, if called `cycle` after the specified timeout, it will jump to the last scene. This is usefull if you have wall switches, so after activating a scene, the next press will go to the "turn_off" scene that must be the last one. If it goes to the last one, it will check if the current lights state matches the last scene state, which will make it go to the first one, so the user doesn't need to press twice in the wall switches.
 
 ## Entities
 
