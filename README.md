@@ -32,7 +32,7 @@ Home Assistant configuration directory
 
 ## Configuration
 
-No configuration is needed in `configuration.yaml`. The component registers services automatically.
+You need to add `scene_sequencer:` to your `configuration.yaml` for the component services to be registered.
 
 ## Services
 
@@ -123,3 +123,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
