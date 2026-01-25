@@ -8,6 +8,7 @@ DOMAIN = "scene_sequencer"
 STORE_SENSOR = "binary_sensor.scene_sequencer_store"
 JSON_ATTR = "data"
 TIMEOUT_PROPERTY = "go_to_last_timeout"
+TRANSITION_PROPERTY = "transition"
 
 JSON_INDEX_PROPERTY = "idx"
 JSON_TIMESTAMP_PROPERTY = "ts"
@@ -107,6 +108,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
         # Get timeout parameter (seconds) for jumping to last scene
         go_to_last_timeout = call.data.get(TIMEOUT_PROPERTY)
+        # Optional fade duration for scene turn_on (applies to supported entities).
+        transition = call.data.get(TRANSITION_PROPERTY)
 
         # Create unique identifier for this scene sequence
         key = generate_key(scenes)
@@ -154,9 +157,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             now_ts = 0
 
         # Activate the target scene
+        service_data = {"entity_id": target_scene}
+        if transition is not None:
+            service_data["transition"] = transition
         await hass.services.async_call(
             "scene", "turn_on",
-            {"entity_id": target_scene},
+            service_data,
             blocking=True
         )
 

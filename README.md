@@ -44,6 +44,7 @@ Activates the next scene in a sequence.
 | --------- | ---- | -------- | ----------- |
 | `scenes` | list | Yes | List of scene entity IDs to cycle through in order |
 | `go_to_last_timeout` | integer | No | Timeout period in seconds. If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene. |
+| `transition` | integer | No | Transition time in seconds for the scene turn_on. Only affects entities that support transitions. |
 
 ## Usage Examples
 
@@ -123,4 +124,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
