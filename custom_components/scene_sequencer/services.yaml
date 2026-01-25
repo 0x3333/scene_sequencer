@@ -17,3 +17,12 @@ cycle:
           min: 0
           max: 60
           step: 1
+    transition:
+      description: "Transition time in seconds for the scene turn_on. Only affects entities that support transitions."
+      example: 1
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 1
