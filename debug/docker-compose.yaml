@@ -1,0 +1,16 @@
+services:
+  ha:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: ha
+    restart: unless-stopped
+    privileged: true
+
+    environment:
+      - TZ=America/Sao_Paulo
+
+    volumes:
+      - ./config:/config
+      - ../custom_components/scene_sequencer:/config/custom_components/scene_sequencer
+
+    ports:
+      - "8123:8123"

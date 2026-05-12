@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Scene Sequencer",
+        "data": {
+          "name": "Name",
+          "on_scenes": "On scenes",
+          "off_scene": "Off scene",
+          "timeout": "Timeout",
+          "transition": "Transition"
+        },
+        "data_description": {
+          "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
+          "timeout": "Required only when off scene is set. Time in seconds before the next call goes to off scene.",
+          "transition": "Transition duration (in seconds)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit Scene Sequencer",
+        "data": {
+          "name": "Name",
+          "on_scenes": "On scenes",
+          "off_scene": "Off scene",
+          "timeout": "Timeout",
+          "transition": "Transition"
+        },
+        "data_description": {
+          "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
+          "timeout": "Required only when off scene is set. Time in seconds before the next call goes to off scene.",
+          "transition": "Transition duration (in seconds)."
+        }
+      }
+    }
+  }
+}

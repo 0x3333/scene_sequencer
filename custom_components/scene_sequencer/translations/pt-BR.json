@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Adicionar Sequenciador de Cenas",
+        "data": {
+          "name": "Nome",
+          "on_scenes": "Cenas ligadas",
+          "off_scene": "Cena desligada",
+          "timeout": "Tempo limite",
+          "transition": "Transição"
+        },
+        "data_description": {
+          "off_scene": "Opcional. Se não for definido, o sequenciador alterna apenas entre as cenas ligadas.",
+          "timeout": "Obrigatório apenas quando houver cena desligada. Tempo em segundos para que a próxima chamada vá para a cena desligada.",
+          "transition": "Duração da transição (em segundos)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Editar Sequenciador de Cenas",
+        "data": {
+          "name": "Nome",
+          "on_scenes": "Cenas ligadas",
+          "off_scene": "Cena desligada",
+          "timeout": "Tempo limite",
+          "transition": "Transição"
+        },
+        "data_description": {
+          "off_scene": "Opcional. Se não for definido, o sequenciador alterna apenas entre as cenas ligadas.",
+          "timeout": "Obrigatório apenas quando houver cena desligada. Tempo em segundos para que a próxima chamada vá para a cena desligada.",
+          "transition": "Duração da transição (em segundos)."
+        }
+      }
+    }
+  }
+}

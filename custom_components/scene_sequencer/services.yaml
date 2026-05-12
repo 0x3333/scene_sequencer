@@ -1,28 +1,41 @@
 cycle:
-  description: "Cycles through a series of scenes sequentially, advancing with each activation. Includes an optional timeout feature that automatically jumps to the final scene after a specified period of inactivity, perfect for implementing shutdown sequences or nighttime transitions."
+  description: "Activate the next scene for a configured sequencer entry. If off_scene is configured, cycle can transition to off_scene (including timeout behavior). If off_scene is not configured, it cycles through on_scenes continuously. Target by entry_id or by unique name."
   fields:
-    scenes:
-      description: "Scenes list."
-      example: ["scene.full", "scene.desk", "scene.window", "scene.off"]
+    entry_id:
+      description: "Config entry ID for the sequencer to advance. If provided, it takes precedence over name."
+      example: "01JABCDEF1234567890ABCDEF"
       selector:
-        target:
-          entity:
-            domain: scene
-    go_to_last_timeout:
-      description: "Timeout period in seconds. If the service is invoked after this duration has elapsed since the last activation, the component will skip directly to the final scene in the sequence. This creates an effective 'shutdown' or 'reset' behavior when returning after a period of inactivity. When omitted, the sequence progresses normally through each scene."
-      example: 5
-      required: false
+        text:
+    name:
+      description: "Configured entry name for the sequencer to advance. Must match exactly and be unique across entries."
+      example: "Bed"
       selector:
-        number:
-          min: 0
-          max: 60
-          step: 1
-    transition:
-      description: "Transition time in seconds for the scene turn_on. Only affects entities that support transitions."
-      example: 1
-      required: false
+        text:
+
+scene_on:
+  description: "Ensure the sequencer is on. If currently off or unknown, activate the first on_scene. If already on an on_scene, do nothing. Target by entry_id or by unique name."
+  fields:
+    entry_id:
+      description: "Config entry ID for the sequencer to target. If provided, it takes precedence over name."
+      example: "01JABCDEF1234567890ABCDEF"
       selector:
-        number:
-          min: 0
-          max: 300
-          step: 1
+        text:
+    name:
+      description: "Configured entry name for the sequencer to target. Must match exactly and be unique across entries."
+      example: "Bed"
+      selector:
+        text:
+
+scene_off:
+  description: "Activate the configured off_scene for the sequencer. Requires off_scene to be configured for the target entry. Target by entry_id or by unique name."
+  fields:
+    entry_id:
+      description: "Config entry ID for the sequencer to target. If provided, it takes precedence over name."
+      example: "01JABCDEF1234567890ABCDEF"
+      selector:
+        text:
+    name:
+      description: "Configured entry name for the sequencer to target. Must match exactly and be unique across entries."
+      example: "Bed"
+      selector:
+        text:
