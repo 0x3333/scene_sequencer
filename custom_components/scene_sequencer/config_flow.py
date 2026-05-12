@@ -24,7 +24,9 @@ from .const import (
 def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
     defaults = defaults or {}
     schema: dict[Any, Any] = {
-        vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, "")): selector.TextSelector(),
+        vol.Required(
+            CONF_NAME, default=defaults.get(CONF_NAME, "")
+        ): selector.TextSelector(),
         vol.Required(
             CONF_ON_SCENES,
             default=defaults.get(CONF_ON_SCENES, []),
@@ -51,15 +53,21 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
         timeout_default = DEFAULT_TIMEOUT if off_scene_default else None
 
     timeout_selector = selector.NumberSelector(
-        selector.NumberSelectorConfig(min=1, max=86400, step=1, mode=selector.NumberSelectorMode.BOX)
+        selector.NumberSelectorConfig(
+            min=1, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
+        )
     )
     if timeout_default is None:
         schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
     else:
         schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = timeout_selector
 
-    schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = selector.NumberSelector(
-        selector.NumberSelectorConfig(min=0, max=300, step=1, mode=selector.NumberSelectorMode.BOX)
+    schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = (
+        selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0, max=300, step=1, mode=selector.NumberSelectorMode.BOX
+            )
+        )
     )
 
     return vol.Schema(schema)
@@ -107,10 +115,14 @@ class SceneSequencerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> SceneSequencerOptionsFlowHandler:
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> SceneSequencerOptionsFlowHandler:
         return SceneSequencerOptionsFlowHandler(config_entry)
 
-    async def async_step_user(self, user_input: dict[str, object] | None = None) -> FlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, object] | None = None
+    ) -> FlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -121,15 +133,22 @@ class SceneSequencerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 await self.async_set_unique_id(validated[CONF_NAME].strip().lower())
                 self._abort_if_unique_id_configured()
-                return self.async_create_entry(title=validated[CONF_NAME], data=validated)
+                return self.async_create_entry(
+                    title=validated[CONF_NAME], data=validated
+                )
 
-        return self.async_show_form(step_id="user", data_schema=_base_schema(user_input), errors=errors)
+        return self.async_show_form(
+            step_id="user", data_schema=_base_schema(user_input), errors=errors
+        )
+
 
 class SceneSequencerOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: ConfigEntry) -> None:
         self._config_entry = config_entry
 
-    async def async_step_init(self, user_input: dict[str, object] | None = None) -> FlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, object] | None = None
+    ) -> FlowResult:
         errors: dict[str, str] = {}
         defaults = dict(self._config_entry.data)
         defaults.update(self._config_entry.options)
@@ -142,4 +161,6 @@ class SceneSequencerOptionsFlowHandler(config_entries.OptionsFlow):
             else:
                 return self.async_create_entry(title="", data=validated)
 
-        return self.async_show_form(step_id="init", data_schema=_base_schema(defaults), errors=errors)
+        return self.async_show_form(
+            step_id="init", data_schema=_base_schema(defaults), errors=errors
+        )

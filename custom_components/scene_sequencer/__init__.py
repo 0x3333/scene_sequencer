@@ -77,7 +77,9 @@ class SequencerManager:
     async def async_update_entry(self, entry_id: str, config: dict[str, Any]) -> None:
         await self._async_store_entry(entry_id, config, log_action="updated")
 
-    async def _async_store_entry(self, entry_id: str, config: dict[str, Any], log_action: str) -> None:
+    async def _async_store_entry(
+        self, entry_id: str, config: dict[str, Any], log_action: str
+    ) -> None:
         off_scene_raw = config.get(CONF_OFF_SCENE)
         timeout_raw = config.get(CONF_TIMEOUT)
         sequencer_config = SequencerConfig(
@@ -156,7 +158,10 @@ class SequencerManager:
             state = self.states.setdefault(entry_id, SequencerState())
             target_scene = self._resolve_target_scene(config, state)
             if target_scene is None:
-                _LOGGER.warning("Could not resolve target scene for entry_id=%s. Check on_scenes configuration.", entry_id)
+                _LOGGER.warning(
+                    "Could not resolve target scene for entry_id=%s. Check on_scenes configuration.",
+                    entry_id,
+                )
                 return
 
         await self._async_activate_scene(
@@ -190,7 +195,10 @@ class SequencerManager:
                 return
 
             if not config.on_scenes:
-                _LOGGER.warning("scene_on could not resolve target scene for entry_id=%s. Check on_scenes configuration.", entry_id)
+                _LOGGER.warning(
+                    "scene_on could not resolve target scene for entry_id=%s. Check on_scenes configuration.",
+                    entry_id,
+                )
                 return
 
             target_scene = config.on_scenes[0]
@@ -216,7 +224,10 @@ class SequencerManager:
                 return
 
             if not config.off_scene:
-                _LOGGER.warning("scene_off called for entry_id=%s but no off_scene is configured", entry_id)
+                _LOGGER.warning(
+                    "scene_off called for entry_id=%s but no off_scene is configured",
+                    entry_id,
+                )
                 return
 
             target_scene = config.off_scene
@@ -245,7 +256,9 @@ class SequencerManager:
             now = time.time()
             updated_entries = 0
             for related_entry_id in self.scene_index.get(target_scene, set()):
-                related_state = self.states.setdefault(related_entry_id, SequencerState())
+                related_state = self.states.setdefault(
+                    related_entry_id, SequencerState()
+                )
                 related_state.current_scene = target_scene
                 related_state.last_activated_at = now
                 updated_entries += 1
@@ -314,11 +327,17 @@ class SequencerManager:
         return matching_entry_ids[0]
 
     async def async_handle_scene_service_event(self, event: Event) -> None:
-        if event.data.get("domain") != "scene" or event.data.get("service") != "turn_on":
+        if (
+            event.data.get("domain") != "scene"
+            or event.data.get("service") != "turn_on"
+        ):
             return
 
         context_id = event.context.id
-        if context_id is not None and str(context_id) in self._internal_scene_context_ids:
+        if (
+            context_id is not None
+            and str(context_id) in self._internal_scene_context_ids
+        ):
             self._internal_scene_context_ids.discard(str(context_id))
             _LOGGER.debug(
                 "Ignored internal scene activation event: context_id=%s",
@@ -338,7 +357,10 @@ class SequencerManager:
             for scene_id in scene_ids:
                 entry_ids = self.scene_index.get(scene_id)
                 if not entry_ids:
-                    _LOGGER.debug("Scene activated externally but no entry tracking it: %s", scene_id)
+                    _LOGGER.debug(
+                        "Scene activated externally but no entry tracking it: %s",
+                        scene_id,
+                    )
                     continue
 
                 for entry_id in entry_ids:
@@ -355,7 +377,9 @@ class SequencerManager:
             if changed:
                 await self._async_save()
 
-    def _resolve_target_scene(self, config: SequencerConfig, state: SequencerState) -> str | None:
+    def _resolve_target_scene(
+        self, config: SequencerConfig, state: SequencerState
+    ) -> str | None:
         if not config.on_scenes:
             return None
 
@@ -414,11 +438,19 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 
     hass.data.setdefault(DOMAIN, {})["manager"] = manager
 
-    hass.services.async_register(DOMAIN, SERVICE_CYCLE, manager.async_handle_service_call)
-    hass.services.async_register(DOMAIN, SERVICE_SCENE_ON, manager.async_handle_scene_on_call)
-    hass.services.async_register(DOMAIN, SERVICE_SCENE_OFF, manager.async_handle_scene_off_call)
+    hass.services.async_register(
+        DOMAIN, SERVICE_CYCLE, manager.async_handle_service_call
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_SCENE_ON, manager.async_handle_scene_on_call
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_SCENE_OFF, manager.async_handle_scene_off_call
+    )
     _LOGGER.debug("Scene Sequencer service registered")
-    manager._unsub_call_service = hass.bus.async_listen(EVENT_CALL_SERVICE, manager.async_handle_scene_service_event)
+    manager._unsub_call_service = hass.bus.async_listen(
+        EVENT_CALL_SERVICE, manager.async_handle_scene_service_event
+    )
     _LOGGER.debug("Scene Sequencer event listener registered")
     return True
 
@@ -434,7 +466,9 @@ async def async_setup_entry(hass: HomeAssistant, entry) -> bool:
 
 
 async def _async_entry_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    _LOGGER.debug("Updating Scene Sequencer entry from options flow: %s", entry.entry_id)
+    _LOGGER.debug(
+        "Updating Scene Sequencer entry from options flow: %s", entry.entry_id
+    )
     manager: SequencerManager = hass.data[DOMAIN]["manager"]
     config = dict(entry.data)
     config.update(entry.options)
