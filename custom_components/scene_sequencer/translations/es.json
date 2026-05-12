@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Agregar secuenciador de escenas",
+        "data": {
+          "name": "Nombre",
+          "on_scenes": "Escenas encendidas",
+          "off_scene": "Escena apagada",
+          "timeout": "Tiempo de espera",
+          "transition": "Transición"
+        },
+        "data_description": {
+          "off_scene": "Opcional. Si se omite, el secuenciador solo alterna entre escenas encendidas.",
+          "timeout": "Obligatorio solo cuando se define una escena apagada. Tiempo en segundos antes de que la siguiente llamada vaya a la escena apagada.",
+          "transition": "Duración de la transición (en segundos)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Editar secuenciador de escenas",
+        "data": {
+          "name": "Nombre",
+          "on_scenes": "Escenas encendidas",
+          "off_scene": "Escena apagada",
+          "timeout": "Tiempo de espera",
+          "transition": "Transición"
+        },
+        "data_description": {
+          "off_scene": "Opcional. Si se omite, el secuenciador solo alterna entre escenas encendidas.",
+          "timeout": "Obligatorio solo cuando se define una escena apagada. Tiempo en segundos antes de que la siguiente llamada vaya a la escena apagada.",
+          "transition": "Duración de la transición (en segundos)."
+        }
+      }
+    }
+  }
+}
