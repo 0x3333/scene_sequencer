@@ -156,7 +156,8 @@ class SequencerManager:
                 return
 
             state = self.states.setdefault(entry_id, SequencerState())
-            target_scene = self._resolve_target_scene(config, state)
+            backward = bool(call.data.get("backward", False))
+            target_scene = self._resolve_target_scene(config, state, backward=backward)
             if target_scene is None:
                 _LOGGER.warning(
                     "Could not resolve target scene for entry_id=%s. Check on_scenes configuration.",
@@ -378,13 +379,14 @@ class SequencerManager:
                 await self._async_save()
 
     def _resolve_target_scene(
-        self, config: SequencerConfig, state: SequencerState
+        self, config: SequencerConfig, state: SequencerState, backward: bool = False
     ) -> str | None:
         if not config.on_scenes:
             return None
 
+        first_index = -1 if backward else 0
         if config.off_scene and state.current_scene == config.off_scene:
-            return config.on_scenes[0]
+            return config.on_scenes[first_index]
 
         if state.current_scene in config.on_scenes:
             if (
@@ -395,17 +397,23 @@ class SequencerManager:
             ):
                 return config.off_scene
 
+            index_increment = -1 if backward else 1
             current_index = config.on_scenes.index(state.current_scene)
             if config.off_scene:
-                # If at the last on_scene, transition to off_scene; otherwise move to next on_scene
-                if current_index == len(config.on_scenes) - 1:
-                    return config.off_scene
-                return config.on_scenes[current_index + 1]
+                if backward:
+                    if current_index == 0:
+                        return config.off_scene
+                else:
+                    if current_index == len(config.on_scenes) - 1:
+                        return config.off_scene
+                return config.on_scenes[current_index + index_increment]
 
             # No off_scene configured: always cycle through on_scenes.
-            return config.on_scenes[(current_index + 1) % len(config.on_scenes)]
+            return config.on_scenes[
+                (current_index + index_increment) % len(config.on_scenes)
+            ]
 
-        return config.on_scenes[0]
+        return config.on_scenes[first_index]
 
     async def _async_save(self) -> None:
         data = {

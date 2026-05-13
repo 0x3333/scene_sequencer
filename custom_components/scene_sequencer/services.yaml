@@ -11,6 +11,11 @@ cycle:
       example: "Bed"
       selector:
         text:
+    backward:
+      description: "If true, cycle in reverse order. Defaults to false (forward)."
+      example: false
+      selector:
+        boolean:
 
 scene_on:
   description: "Ensure the sequencer is on. If currently off or unknown, activate the first on_scene. If already on an on_scene, do nothing. Target by entry_id or by unique name."
