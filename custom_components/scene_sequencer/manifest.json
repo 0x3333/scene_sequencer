@@ -1,7 +1,7 @@
 {
   "domain": "scene_sequencer",
   "name": "Scene Sequencer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "integration_type": "service",
   "config_flow": true,
   "documentation": "https://github.com/0x3333/scene_sequencer",
