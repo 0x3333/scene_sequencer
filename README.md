@@ -67,6 +67,7 @@ Activates the next scene for a configured sequencer entry.
 | --------- | ---- | -------- | ----------- |
 | `entry_id` | string | No | Home Assistant config entry ID for the sequencer to advance. Takes precedence over `name` |
 | `name` | string | No | Entry name for the sequencer to advance. Must match exactly and be unique |
+| `backward` | bool | No | The service will iterate backwards through the `on_scene` list. The behavior for everything else will be the same |
 
 Provide at least one of `entry_id` or `name`.
 
