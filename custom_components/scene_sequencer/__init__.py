@@ -21,6 +21,7 @@ from .const import (
     SERVICE_CYCLE,
     SERVICE_SCENE_OFF,
     SERVICE_SCENE_ON,
+    SERVICE_SCENE_ON_OFF,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
@@ -242,6 +243,39 @@ class SequencerManager:
             source_service=SERVICE_SCENE_OFF,
         )
 
+    async def async_handle_scene_on_off_call(self, call: ServiceCall) -> None:
+        entry_id = self._resolve_service_target_entry_id(call)
+        if not entry_id:
+            return
+
+        async with self._lock:
+            config = self.configs.get(entry_id)
+            if config is None:
+                _LOGGER.warning("scene_on_off call for unknown entry_id: %s", entry_id)
+                return
+
+            if not config.off_scene:
+                _LOGGER.warning(
+                    "scene_on_off called for entry_id=%s but no off_scene is configured",
+                    entry_id,
+                )
+                return
+
+            state = self.states.setdefault(entry_id, SequencerState())
+            if state.current_scene in config.on_scenes:
+                target_scene = config.off_scene
+            else:
+                target_scene = config.on_scenes[0]
+
+        await self._async_activate_scene(
+            entry_id=entry_id,
+            entry_name=config.name,
+            target_scene=target_scene,
+            transition=config.transition,
+            parent_context_id=call.context.id,
+            source_service=SERVICE_SCENE_ON_OFF,
+        )
+
     async def _async_activate_scene(
         self,
         entry_id: str,
@@ -454,6 +488,9 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     )
     hass.services.async_register(
         DOMAIN, SERVICE_SCENE_OFF, manager.async_handle_scene_off_call
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_SCENE_ON_OFF, manager.async_handle_scene_on_off_call
     )
     _LOGGER.debug("Scene Sequencer service registered")
     manager._unsub_call_service = hass.bus.async_listen(

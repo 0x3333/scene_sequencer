@@ -44,3 +44,17 @@ scene_off:
       example: "Bed"
       selector:
         text:
+
+scene_on_off:
+  description: "Toggle the sequencer. If currently on an on_scene, activate the off_scene. If on the off_scene or no scene is known, activate the first on_scene. Requires off_scene to be configured. Target by entry_id or by unique name."
+  fields:
+    entry_id:
+      description: "Config entry ID for the sequencer to target. If provided, it takes precedence over name."
+      example: "01JABCDEF1234567890ABCDEF"
+      selector:
+        text:
+    name:
+      description: "Configured entry name for the sequencer to target. Must match exactly and be unique across entries."
+      example: "Bed"
+      selector:
+        text:
