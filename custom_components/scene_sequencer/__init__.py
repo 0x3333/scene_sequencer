@@ -36,7 +36,7 @@ class SequencerConfig:
     on_scenes: list[str]
     off_scene: str | None
     cycle_to_off: bool
-    timeout: int | None
+    timeout: int
     transition: int
 
 
@@ -92,7 +92,7 @@ class SequencerManager:
             on_scenes=list(config[CONF_ON_SCENES]),
             off_scene=str(off_scene_raw) if off_scene_raw else None,
             cycle_to_off=bool(config.get(CONF_CYCLE_TO_OFF, True)),
-            timeout=int(timeout_raw) if timeout_raw not in (None, "") else None,
+            timeout=int(timeout_raw) if timeout_raw not in (None, "") else 0,
             transition=int(config.get(CONF_TRANSITION, 0)),
         )
 
@@ -455,7 +455,7 @@ class SequencerManager:
 
         if config.off_scene and config.cycle_to_off:
             if (
-                config.timeout is not None
+                config.timeout
                 and state.last_activated_at > 0
                 and (time.time() - state.last_activated_at) >= config.timeout
             ):

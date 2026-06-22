@@ -49,19 +49,13 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
             selector.EntitySelectorConfig(domain="scene")
         )
 
-    timeout_default = defaults.get(CONF_TIMEOUT)
-    if timeout_default is None:
-        timeout_default = DEFAULT_TIMEOUT if off_scene_default else None
+    timeout_default = defaults.get(CONF_TIMEOUT, 0)
 
-    timeout_selector = selector.NumberSelector(
+    schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = selector.NumberSelector(
         selector.NumberSelectorConfig(
-            min=1, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
+            min=0, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
         )
     )
-    if timeout_default is None:
-        schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
-    else:
-        schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = timeout_selector
 
     schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = (
         selector.NumberSelector(
@@ -96,11 +90,9 @@ def _validate_entry_data(user_input: dict[str, object]) -> dict[str, object]:
         raise ValueError("Off scene must not be part of the on scenes list")
 
     timeout_raw = user_input.get(CONF_TIMEOUT)
-    timeout = int(timeout_raw) if timeout_raw not in (None, "") else None
-    if off_scene and timeout is None:
-        raise ValueError("Timeout is required when off scene is set")
-    if timeout is not None and timeout < 1:
-        raise ValueError("Timeout must be greater than zero")
+    timeout = int(timeout_raw) if timeout_raw not in (None, "") else 0
+    if timeout < 0:
+        raise ValueError("Timeout must be zero or greater")
 
     transition = int(user_input.get(CONF_TRANSITION, 0))
     if transition < 0:
