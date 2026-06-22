@@ -7,13 +7,15 @@
           "name": "Name",
           "on_scenes": "On scenes",
           "off_scene": "Off scene",
+          "cycle_to_off": "Cycle to off scene",
           "timeout": "Timeout",
           "transition": "Transition"
         },
         "data_description": {
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
           "timeout": "Required only when off scene is set. Time in seconds before the next call goes to off scene.",
-          "transition": "Transition duration (in seconds)."
+          "transition": "Transition duration (in seconds).",
+          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
         }
       }
     }
@@ -26,13 +28,15 @@
           "name": "Name",
           "on_scenes": "On scenes",
           "off_scene": "Off scene",
+          "cycle_to_off": "Cycle to off scene",
           "timeout": "Timeout",
           "transition": "Transition"
         },
         "data_description": {
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
           "timeout": "Required only when off scene is set. Time in seconds before the next call goes to off scene.",
-          "transition": "Transition duration (in seconds)."
+          "transition": "Transition duration (in seconds).",
+          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
         }
       }
     }
