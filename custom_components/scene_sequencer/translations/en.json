@@ -13,7 +13,7 @@
         },
         "data_description": {
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
-          "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Set to 0 to disable timeout behaviour.",
+          "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Leave unset or set to 0 to disable timeout behaviour.",
           "transition": "Transition duration (in seconds).",
           "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
         }
@@ -34,7 +34,7 @@
         },
         "data_description": {
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
-          "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Set to 0 to disable timeout behaviour.",
+          "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Leave unset or set to 0 to disable timeout behaviour.",
           "transition": "Transition duration (in seconds).",
           "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
         }

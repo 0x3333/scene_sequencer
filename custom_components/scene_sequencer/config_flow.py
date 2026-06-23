@@ -49,13 +49,16 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
             selector.EntitySelectorConfig(domain="scene")
         )
 
-    timeout_default = defaults.get(CONF_TIMEOUT, 0)
-
-    schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = selector.NumberSelector(
+    timeout_default = defaults.get(CONF_TIMEOUT)
+    timeout_selector = selector.NumberSelector(
         selector.NumberSelectorConfig(
             min=0, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
         )
     )
+    if timeout_default:
+        schema[vol.Optional(CONF_TIMEOUT, default=int(timeout_default))] = timeout_selector
+    else:
+        schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
 
     schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = (
         selector.NumberSelector(
