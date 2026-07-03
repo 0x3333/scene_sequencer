@@ -8,6 +8,7 @@
           "on_scenes": "Escenas encendidas",
           "off_scene": "Escena apagada",
           "cycle_to_off": "Ciclar hacia escena apagada",
+          "reset_on_off": "Restablecer al apagar",
           "timeout": "Tiempo de espera",
           "transition": "Transición"
         },
@@ -15,7 +16,8 @@
           "off_scene": "Opcional. Si se omite, el secuenciador solo alterna entre escenas encendidas.",
           "timeout": "Tiempo en segundos de inactividad antes de que la siguiente llamada de ciclo vaya a la escena apagada. Deje sin definir o establezca en 0 para deshabilitar el comportamiento de tiempo de espera.",
           "transition": "Duración de la transición (en segundos).",
-          "cycle_to_off": "Cuando está habilitado, avanzar más allá de la última escena encendida (o tras el tiempo de espera) activará la escena apagada. Cuando está deshabilitado, el ciclo siempre se repite entre las escenas encendidas y solo scene_off / scene_on_off pueden activar la escena apagada."
+          "cycle_to_off": "Cuando está habilitado, avanzar más allá de la última escena encendida (o tras el tiempo de espera) activará la escena apagada. Cuando está deshabilitado, el ciclo siempre se repite entre las escenas encendidas y solo scene_off / scene_on_off pueden activar la escena apagada.",
+          "reset_on_off": "Cuando está habilitado, activar la escena apagada restablece el secuenciador a la primera escena encendida, por lo que la siguiente activación siempre comienza desde el principio. Cuando está deshabilitado, se recuerda la última escena encendida activa y se reanuda al volver a encender."
         }
       }
     }
@@ -29,6 +31,7 @@
           "on_scenes": "Escenas encendidas",
           "off_scene": "Escena apagada",
           "cycle_to_off": "Ciclar hacia escena apagada",
+          "reset_on_off": "Restablecer al apagar",
           "timeout": "Tiempo de espera",
           "transition": "Transición"
         },
@@ -36,7 +39,8 @@
           "off_scene": "Opcional. Si se omite, el secuenciador solo alterna entre escenas encendidas.",
           "timeout": "Tiempo en segundos de inactividad antes de que la siguiente llamada de ciclo vaya a la escena apagada. Deje sin definir o establezca en 0 para deshabilitar el comportamiento de tiempo de espera.",
           "transition": "Duración de la transición (en segundos).",
-          "cycle_to_off": "Cuando está habilitado, avanzar más allá de la última escena encendida (o tras el tiempo de espera) activará la escena apagada. Cuando está deshabilitado, el ciclo siempre se repite entre las escenas encendidas y solo scene_off / scene_on_off pueden activar la escena apagada."
+          "cycle_to_off": "Cuando está habilitado, avanzar más allá de la última escena encendida (o tras el tiempo de espera) activará la escena apagada. Cuando está deshabilitado, el ciclo siempre se repite entre las escenas encendidas y solo scene_off / scene_on_off pueden activar la escena apagada.",
+          "reset_on_off": "Cuando está habilitado, activar la escena apagada restablece el secuenciador a la primera escena encendida, por lo que la siguiente activación siempre comienza desde el principio. Cuando está deshabilitado, se recuerda la última escena encendida activa y se reanuda al volver a encender."
         }
       }
     }

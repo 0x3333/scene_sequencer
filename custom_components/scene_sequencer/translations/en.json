@@ -8,6 +8,7 @@
           "on_scenes": "On scenes",
           "off_scene": "Off scene",
           "cycle_to_off": "Cycle to off scene",
+          "reset_on_off": "Reset on off",
           "timeout": "Timeout",
           "transition": "Transition"
         },
@@ -15,7 +16,8 @@
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
           "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Leave unset or set to 0 to disable timeout behaviour.",
           "transition": "Transition duration (in seconds).",
-          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
+          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene.",
+          "reset_on_off": "When enabled, activating the off scene resets the sequencer back to the first on scene, so the next activation always starts from the beginning. When disabled, the last active on scene is remembered and resumed when turning back on."
         }
       }
     }
@@ -29,6 +31,7 @@
           "on_scenes": "On scenes",
           "off_scene": "Off scene",
           "cycle_to_off": "Cycle to off scene",
+          "reset_on_off": "Reset on off",
           "timeout": "Timeout",
           "transition": "Transition"
         },
@@ -36,7 +39,8 @@
           "off_scene": "Optional. If omitted, the sequencer cycles only through on scenes.",
           "timeout": "Time in seconds of inactivity before the next cycle call goes to the off scene. Leave unset or set to 0 to disable timeout behaviour.",
           "transition": "Transition duration (in seconds).",
-          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene."
+          "cycle_to_off": "When enabled, cycling past the last on scene (or after timeout) will activate the off scene. When disabled, cycle always wraps through on scenes and only scene_off / scene_on_off can activate the off scene.",
+          "reset_on_off": "When enabled, activating the off scene resets the sequencer back to the first on scene, so the next activation always starts from the beginning. When disabled, the last active on scene is remembered and resumed when turning back on."
         }
       }
     }

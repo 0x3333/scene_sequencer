@@ -15,6 +15,7 @@ from .const import (
     CONF_NAME,
     CONF_OFF_SCENE,
     CONF_ON_SCENES,
+    CONF_RESET_ON_OFF,
     CONF_TIMEOUT,
     CONF_TRANSITION,
     DEFAULT_TIMEOUT,
@@ -72,6 +73,10 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
         vol.Optional(CONF_CYCLE_TO_OFF, default=defaults.get(CONF_CYCLE_TO_OFF, True))
     ] = selector.BooleanSelector()
 
+    schema[
+        vol.Optional(CONF_RESET_ON_OFF, default=defaults.get(CONF_RESET_ON_OFF, True))
+    ] = selector.BooleanSelector()
+
     return vol.Schema(schema)
 
 
@@ -102,12 +107,14 @@ def _validate_entry_data(user_input: dict[str, object]) -> dict[str, object]:
         raise ValueError("Transition must be zero or greater")
 
     cycle_to_off = bool(user_input.get(CONF_CYCLE_TO_OFF, True))
+    reset_on_off = bool(user_input.get(CONF_RESET_ON_OFF, True))
 
     return {
         CONF_NAME: name,
         CONF_ON_SCENES: on_scenes,
         CONF_OFF_SCENE: off_scene,
         CONF_CYCLE_TO_OFF: cycle_to_off,
+        CONF_RESET_ON_OFF: reset_on_off,
         CONF_TIMEOUT: timeout,
         CONF_TRANSITION: transition,
     }

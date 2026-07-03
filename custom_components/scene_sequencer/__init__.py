@@ -14,6 +14,7 @@ from homeassistant.helpers.storage import Store
 from .const import (
     CONF_CYCLE_TO_OFF,
     CONF_NAME,
+    CONF_RESET_ON_OFF,
     CONF_OFF_SCENE,
     CONF_ON_SCENES,
     CONF_TIMEOUT,
@@ -36,6 +37,7 @@ class SequencerConfig:
     on_scenes: list[str]
     off_scene: str | None
     cycle_to_off: bool
+    reset_on_off: bool
     timeout: int
     transition: int
 
@@ -92,6 +94,7 @@ class SequencerManager:
             on_scenes=list(config[CONF_ON_SCENES]),
             off_scene=str(off_scene_raw) if off_scene_raw else None,
             cycle_to_off=bool(config.get(CONF_CYCLE_TO_OFF, True)),
+            reset_on_off=bool(config.get(CONF_RESET_ON_OFF, True)),
             timeout=int(timeout_raw) if timeout_raw not in (None, "") else 0,
             transition=int(config.get(CONF_TRANSITION, 0)),
         )
@@ -309,6 +312,8 @@ class SequencerManager:
                     related_state.current_scene = target_scene
                     related_state.is_on = True
                 elif related_config is not None and related_config.off_scene == target_scene:
+                    if related_config.reset_on_off:
+                        related_state.current_scene = related_config.on_scenes[0]
                     related_state.is_on = False
                 related_state.last_activated_at = now
                 updated_entries += 1
@@ -420,6 +425,8 @@ class SequencerManager:
                         state.current_scene = scene_id
                         state.is_on = True
                     elif config is not None and config.off_scene == scene_id:
+                        if config.reset_on_off:
+                            state.current_scene = config.on_scenes[0]
                         state.is_on = False
                     state.last_activated_at = now
                     changed = True
