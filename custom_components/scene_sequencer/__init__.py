@@ -12,7 +12,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.storage import Store
 
 from .const import (
+    CONF_CYCLE_TO_OFF,
     CONF_NAME,
+    CONF_RESET_ON_OFF,
     CONF_OFF_SCENE,
     CONF_ON_SCENES,
     CONF_TIMEOUT,
@@ -21,6 +23,7 @@ from .const import (
     SERVICE_CYCLE,
     SERVICE_SCENE_OFF,
     SERVICE_SCENE_ON,
+    SERVICE_SCENE_ON_OFF,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
@@ -33,14 +36,17 @@ class SequencerConfig:
     name: str
     on_scenes: list[str]
     off_scene: str | None
-    timeout: int | None
+    cycle_to_off: bool
+    reset_on_off: bool
+    timeout: int
     transition: int
 
 
 @dataclass(slots=True)
 class SequencerState:
-    current_scene: str | None = None
+    current_scene: str | None = None  # always an on_scene when set
     last_activated_at: float = 0.0
+    is_on: bool = False
 
 
 @dataclass(slots=True)
@@ -69,6 +75,7 @@ class SequencerManager:
             self.states[entry_id] = SequencerState(
                 current_scene=payload.get("current_scene"),
                 last_activated_at=float(payload.get("last_activated_at", 0.0)),
+                is_on=bool(payload.get("is_on", False)),
             )
 
     async def async_add_entry(self, entry_id: str, config: dict[str, Any]) -> None:
@@ -86,7 +93,9 @@ class SequencerManager:
             name=str(config[CONF_NAME]),
             on_scenes=list(config[CONF_ON_SCENES]),
             off_scene=str(off_scene_raw) if off_scene_raw else None,
-            timeout=int(timeout_raw) if timeout_raw not in (None, "") else None,
+            cycle_to_off=bool(config.get(CONF_CYCLE_TO_OFF, True)),
+            reset_on_off=bool(config.get(CONF_RESET_ON_OFF, True)),
+            timeout=int(timeout_raw) if timeout_raw not in (None, "") else 0,
             transition=int(config.get(CONF_TRANSITION, 0)),
         )
 
@@ -186,7 +195,7 @@ class SequencerManager:
                 return
 
             state = self.states.setdefault(entry_id, SequencerState())
-            if state.current_scene in config.on_scenes:
+            if state.is_on:
                 _LOGGER.debug(
                     "scene_on no-op for entry %s(%s): already on scene=%s",
                     entry_id,
@@ -202,7 +211,10 @@ class SequencerManager:
                 )
                 return
 
-            target_scene = config.on_scenes[0]
+            if state.current_scene in config.on_scenes:
+                target_scene = state.current_scene
+            else:
+                target_scene = config.on_scenes[0]
 
         await self._async_activate_scene(
             entry_id=entry_id,
@@ -242,6 +254,41 @@ class SequencerManager:
             source_service=SERVICE_SCENE_OFF,
         )
 
+    async def async_handle_scene_on_off_call(self, call: ServiceCall) -> None:
+        entry_id = self._resolve_service_target_entry_id(call)
+        if not entry_id:
+            return
+
+        async with self._lock:
+            config = self.configs.get(entry_id)
+            if config is None:
+                _LOGGER.warning("scene_on_off call for unknown entry_id: %s", entry_id)
+                return
+
+            if not config.off_scene:
+                _LOGGER.warning(
+                    "scene_on_off called for entry_id=%s but no off_scene is configured",
+                    entry_id,
+                )
+                return
+
+            state = self.states.setdefault(entry_id, SequencerState())
+            if state.is_on:
+                target_scene = config.off_scene
+            elif state.current_scene in config.on_scenes:
+                target_scene = state.current_scene
+            else:
+                target_scene = config.on_scenes[0]
+
+        await self._async_activate_scene(
+            entry_id=entry_id,
+            entry_name=config.name,
+            target_scene=target_scene,
+            transition=config.transition,
+            parent_context_id=call.context.id,
+            source_service=SERVICE_SCENE_ON_OFF,
+        )
+
     async def _async_activate_scene(
         self,
         entry_id: str,
@@ -257,10 +304,17 @@ class SequencerManager:
             now = time.time()
             updated_entries = 0
             for related_entry_id in self.scene_index.get(target_scene, set()):
+                related_config = self.configs.get(related_entry_id)
                 related_state = self.states.setdefault(
                     related_entry_id, SequencerState()
                 )
-                related_state.current_scene = target_scene
+                if related_config is not None and target_scene in related_config.on_scenes:
+                    related_state.current_scene = target_scene
+                    related_state.is_on = True
+                elif related_config is not None and related_config.off_scene == target_scene:
+                    if related_config.reset_on_off:
+                        related_state.current_scene = related_config.on_scenes[0]
+                    related_state.is_on = False
                 related_state.last_activated_at = now
                 updated_entries += 1
 
@@ -365,8 +419,15 @@ class SequencerManager:
                     continue
 
                 for entry_id in entry_ids:
+                    config = self.configs.get(entry_id)
                     state = self.states.setdefault(entry_id, SequencerState())
-                    state.current_scene = scene_id
+                    if config is not None and scene_id in config.on_scenes:
+                        state.current_scene = scene_id
+                        state.is_on = True
+                    elif config is not None and config.off_scene == scene_id:
+                        if config.reset_on_off:
+                            state.current_scene = config.on_scenes[0]
+                        state.is_on = False
                     state.last_activated_at = now
                     changed = True
                     _LOGGER.debug(
@@ -385,35 +446,37 @@ class SequencerManager:
             return None
 
         first_index = -1 if backward else 0
-        if config.off_scene and state.current_scene == config.off_scene:
+        if not state.is_on:
+            if state.current_scene in config.on_scenes:
+                return state.current_scene
             return config.on_scenes[first_index]
 
-        if state.current_scene in config.on_scenes:
+        current_scene = state.current_scene
+        if current_scene not in config.on_scenes:
+            return config.on_scenes[first_index]
+
+        index_increment = -1 if backward else 1
+        current_index = config.on_scenes.index(current_scene)
+
+        if config.off_scene and config.cycle_to_off:
             if (
-                config.off_scene
-                and config.timeout is not None
+                config.timeout
                 and state.last_activated_at > 0
                 and (time.time() - state.last_activated_at) >= config.timeout
             ):
                 return config.off_scene
+            if backward:
+                if current_index == 0:
+                    return config.off_scene
+            else:
+                if current_index == len(config.on_scenes) - 1:
+                    return config.off_scene
+            return config.on_scenes[current_index + index_increment]
 
-            index_increment = -1 if backward else 1
-            current_index = config.on_scenes.index(state.current_scene)
-            if config.off_scene:
-                if backward:
-                    if current_index == 0:
-                        return config.off_scene
-                else:
-                    if current_index == len(config.on_scenes) - 1:
-                        return config.off_scene
-                return config.on_scenes[current_index + index_increment]
-
-            # No off_scene configured: always cycle through on_scenes.
-            return config.on_scenes[
-                (current_index + index_increment) % len(config.on_scenes)
-            ]
-
-        return config.on_scenes[first_index]
+        # cycle_to_off disabled or no off_scene: always wrap through on_scenes.
+        return config.on_scenes[
+            (current_index + index_increment) % len(config.on_scenes)
+        ]
 
     async def _async_save(self) -> None:
         data = {
@@ -421,6 +484,7 @@ class SequencerManager:
                 entry_id: {
                     "current_scene": state.current_scene,
                     "last_activated_at": state.last_activated_at,
+                    "is_on": state.is_on,
                 }
                 for entry_id, state in self.states.items()
             }
@@ -454,6 +518,9 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     )
     hass.services.async_register(
         DOMAIN, SERVICE_SCENE_OFF, manager.async_handle_scene_off_call
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_SCENE_ON_OFF, manager.async_handle_scene_on_off_call
     )
     _LOGGER.debug("Scene Sequencer service registered")
     manager._unsub_call_service = hass.bus.async_listen(

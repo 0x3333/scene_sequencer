@@ -11,9 +11,11 @@ from homeassistant.helpers import selector
 from homeassistant.core import callback
 
 from .const import (
+    CONF_CYCLE_TO_OFF,
     CONF_NAME,
     CONF_OFF_SCENE,
     CONF_ON_SCENES,
+    CONF_RESET_ON_OFF,
     CONF_TIMEOUT,
     CONF_TRANSITION,
     DEFAULT_TIMEOUT,
@@ -49,18 +51,15 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
         )
 
     timeout_default = defaults.get(CONF_TIMEOUT)
-    if timeout_default is None:
-        timeout_default = DEFAULT_TIMEOUT if off_scene_default else None
-
     timeout_selector = selector.NumberSelector(
         selector.NumberSelectorConfig(
-            min=1, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
+            min=0, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
         )
     )
-    if timeout_default is None:
-        schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
+    if timeout_default:
+        schema[vol.Optional(CONF_TIMEOUT, default=int(timeout_default))] = timeout_selector
     else:
-        schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = timeout_selector
+        schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
 
     schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = (
         selector.NumberSelector(
@@ -69,6 +68,14 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
             )
         )
     )
+
+    schema[
+        vol.Optional(CONF_CYCLE_TO_OFF, default=defaults.get(CONF_CYCLE_TO_OFF, True))
+    ] = selector.BooleanSelector()
+
+    schema[
+        vol.Optional(CONF_RESET_ON_OFF, default=defaults.get(CONF_RESET_ON_OFF, True))
+    ] = selector.BooleanSelector()
 
     return vol.Schema(schema)
 
@@ -91,20 +98,23 @@ def _validate_entry_data(user_input: dict[str, object]) -> dict[str, object]:
         raise ValueError("Off scene must not be part of the on scenes list")
 
     timeout_raw = user_input.get(CONF_TIMEOUT)
-    timeout = int(timeout_raw) if timeout_raw not in (None, "") else None
-    if off_scene and timeout is None:
-        raise ValueError("Timeout is required when off scene is set")
-    if timeout is not None and timeout < 1:
-        raise ValueError("Timeout must be greater than zero")
+    timeout = int(timeout_raw) if timeout_raw not in (None, "") else 0
+    if timeout < 0:
+        raise ValueError("Timeout must be zero or greater")
 
     transition = int(user_input.get(CONF_TRANSITION, 0))
     if transition < 0:
         raise ValueError("Transition must be zero or greater")
 
+    cycle_to_off = bool(user_input.get(CONF_CYCLE_TO_OFF, True))
+    reset_on_off = bool(user_input.get(CONF_RESET_ON_OFF, True))
+
     return {
         CONF_NAME: name,
         CONF_ON_SCENES: on_scenes,
         CONF_OFF_SCENE: off_scene,
+        CONF_CYCLE_TO_OFF: cycle_to_off,
+        CONF_RESET_ON_OFF: reset_on_off,
         CONF_TIMEOUT: timeout,
         CONF_TRANSITION: transition,
     }

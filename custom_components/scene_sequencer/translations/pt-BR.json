@@ -7,13 +7,17 @@
           "name": "Nome",
           "on_scenes": "Cenas ligadas",
           "off_scene": "Cena desligada",
+          "cycle_to_off": "Ciclar para cena desligada",
+          "reset_on_off": "Redefinir ao desligar",
           "timeout": "Tempo limite",
           "transition": "Transição"
         },
         "data_description": {
           "off_scene": "Opcional. Se não for definido, o sequenciador alterna apenas entre as cenas ligadas.",
-          "timeout": "Obrigatório apenas quando houver cena desligada. Tempo em segundos para que a próxima chamada vá para a cena desligada.",
-          "transition": "Duração da transição (em segundos)."
+          "timeout": "Tempo em segundos de inatividade antes de que a próxima chamada de ciclo vá para a cena desligada. Deixe sem definir ou defina como 0 para desativar o comportamento de tempo limite.",
+          "transition": "Duração da transição (em segundos).",
+          "cycle_to_off": "Quando habilitado, avançar além da última cena ligada (ou após o tempo limite) ativará a cena desligada. Quando desabilitado, o ciclo sempre percorre as cenas ligadas em loop e apenas scene_off / scene_on_off podem ativar a cena desligada.",
+          "reset_on_off": "Quando habilitado, ativar a cena desligada redefine o sequenciador para a primeira cena ligada, de modo que a próxima ativação sempre começa do início. Quando desabilitado, a última cena ligada ativa é lembrada e retomada ao ligar novamente."
         }
       }
     }
@@ -26,13 +30,17 @@
           "name": "Nome",
           "on_scenes": "Cenas ligadas",
           "off_scene": "Cena desligada",
+          "cycle_to_off": "Ciclar para cena desligada",
+          "reset_on_off": "Redefinir ao desligar",
           "timeout": "Tempo limite",
           "transition": "Transição"
         },
         "data_description": {
           "off_scene": "Opcional. Se não for definido, o sequenciador alterna apenas entre as cenas ligadas.",
-          "timeout": "Obrigatório apenas quando houver cena desligada. Tempo em segundos para que a próxima chamada vá para a cena desligada.",
-          "transition": "Duração da transição (em segundos)."
+          "timeout": "Tempo em segundos de inatividade antes de que a próxima chamada de ciclo vá para a cena desligada. Deixe sem definir ou defina como 0 para desativar o comportamento de tempo limite.",
+          "transition": "Duração da transição (em segundos).",
+          "cycle_to_off": "Quando habilitado, avançar além da última cena ligada (ou após o tempo limite) ativará a cena desligada. Quando desabilitado, o ciclo sempre percorre as cenas ligadas em loop e apenas scene_off / scene_on_off podem ativar a cena desligada.",
+          "reset_on_off": "Quando habilitado, ativar a cena desligada redefine o sequenciador para a primeira cena ligada, de modo que a próxima ativação sempre começa do início. Quando desabilitado, a última cena ligada ativa é lembrada e retomada ao ligar novamente."
         }
       }
     }
