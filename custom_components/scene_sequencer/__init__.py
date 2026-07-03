@@ -309,7 +309,6 @@ class SequencerManager:
                     related_state.current_scene = target_scene
                     related_state.is_on = True
                 elif related_config is not None and related_config.off_scene == target_scene:
-                    related_state.current_scene = related_config.on_scenes[0]
                     related_state.is_on = False
                 related_state.last_activated_at = now
                 updated_entries += 1
@@ -421,7 +420,6 @@ class SequencerManager:
                         state.current_scene = scene_id
                         state.is_on = True
                     elif config is not None and config.off_scene == scene_id:
-                        state.current_scene = config.on_scenes[0]
                         state.is_on = False
                     state.last_activated_at = now
                     changed = True
