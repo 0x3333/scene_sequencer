@@ -21,6 +21,12 @@ from .const import (
 )
 
 
+def _optional_marker(key: str, suggested: object | None) -> vol.Optional:
+    if suggested in (None, ""):
+        return vol.Optional(key)
+    return vol.Optional(key, description={"suggested_value": suggested})
+
+
 def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
     defaults = defaults or {}
     schema: dict[Any, Any] = {
@@ -36,31 +42,19 @@ def _base_schema(defaults: dict[str, object] | None = None) -> vol.Schema:
     }
 
     off_scene_default = defaults.get(CONF_OFF_SCENE)
-    if off_scene_default:
-        schema[
-            vol.Optional(
-                CONF_OFF_SCENE,
-                default=off_scene_default,
-            )
-        ] = selector.EntitySelector(selector.EntitySelectorConfig(domain="scene"))
-    else:
-        schema[vol.Optional(CONF_OFF_SCENE)] = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain="scene")
-        )
+    schema[_optional_marker(CONF_OFF_SCENE, off_scene_default)] = (
+        selector.EntitySelector(selector.EntitySelectorConfig(domain="scene"))
+    )
 
     timeout_default = defaults.get(CONF_TIMEOUT)
     if timeout_default is None:
         timeout_default = DEFAULT_TIMEOUT if off_scene_default else None
 
-    timeout_selector = selector.NumberSelector(
+    schema[_optional_marker(CONF_TIMEOUT, timeout_default)] = selector.NumberSelector(
         selector.NumberSelectorConfig(
             min=1, max=86400, step=1, mode=selector.NumberSelectorMode.BOX
         )
     )
-    if timeout_default is None:
-        schema[vol.Optional(CONF_TIMEOUT)] = timeout_selector
-    else:
-        schema[vol.Optional(CONF_TIMEOUT, default=timeout_default)] = timeout_selector
 
     schema[vol.Optional(CONF_TRANSITION, default=defaults.get(CONF_TRANSITION, 0))] = (
         selector.NumberSelector(
